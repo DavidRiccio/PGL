@@ -35,7 +35,11 @@ export default function Login() {
         style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
       />
       {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
-      <Button title="Login" onPress={handleLogin} />
+      
+      <View style={{ marginBottom: 10 }}>
+        <Button title="Login" onPress={handleLogin} />
+      </View>
+
       <Button title="Registrarse" onPress={() => router.push("/register")} />
     </View>
   );

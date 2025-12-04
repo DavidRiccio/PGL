@@ -210,6 +210,7 @@ class Unregister(Resource):
 # -----------------------------------------------------------
 @groups_ns.route("")
 class GroupList(Resource):
+    @jwt_required()
     def get(self):
         """Lista los grupos del usuario autenticado"""
         user_id = get_jwt_identity()
