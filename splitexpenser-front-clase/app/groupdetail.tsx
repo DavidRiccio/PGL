@@ -2,13 +2,15 @@ import { useRouter } from "expo-router";
 import React, { useContext, useState } from "react";
 import { Button, Text, TextInput, View, Alert, Modal } from "react-native";
 import { AuthContext } from "../context/AuthContext";
+import Constants from "expo-constants";
 
 export default function Login() {
-    const { login, token } = useContext(AuthContext);
+    const { token } = useContext(AuthContext);
     const [currentExpenseId,setCurrentExpenseId] = useState<string|null>(null);
     const [newAmount,setNewAmount] = useState("0");
     const [newDescription,setNewDescription] = useState("");
     const [visibleModal, setVisibleModal] = useState(false);
+    
     const [expenses, setExpenses] = useState([
         {
             id: "1",
@@ -31,6 +33,8 @@ export default function Login() {
         },
     ]);
     const router = useRouter();
+    const API_URL = Constants.expoConfig?.extra?.apiUrl ?? "";
+    
 
     const handleDelete = (id: string) => {
         console.log(`Borro el id : ${id}`);

@@ -7,8 +7,27 @@ import Constants from "expo-constants";
 export default function Home() {
   const { token, logout } = useContext(AuthContext);
   const router = useRouter();
-  const [groups, setGroups] = useState<any[]>([]); 
+  const [groups, setGroups] = useState<any[]>([]);
+  const [groupName, setGroupName] = useState("");
   const API_URL = Constants.expoConfig?.extra?.apiUrl ?? "";
+
+  const handleGroupList = async () => {
+    try {
+      const res = await fetch(`${API_URL}/groups`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+      });
+      if (!res.ok) throw new Error("Error al cargar grupos");
+      const data = await res.json();
+      setGroups(data);
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Error", "No se pudieron cargar los grupos");
+    }
+  };
 
   useEffect(() => {
     if (token) {
@@ -20,39 +39,41 @@ export default function Home() {
     }
   }, [token]);
 
-  const handleGroupList = async () => {
+  const handleAddGroup = async (name: string) => {
     try {
       const res = await fetch(`${API_URL}/groups`, {
-        method: "GET", 
-        headers: { 
-            "Content-Type": "application/json", 
-            "Authorization": `Bearer ${token}` 
-        },
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }, body: JSON.stringify({ name })
       });
-
       if (!res.ok) throw new Error("Error al cargar grupos");
 
-      const data = await res.json();
-      
-      setGroups(data);
-
+      handleGroupList()
     } catch (err) {
       console.error(err);
-      Alert.alert("Error", "No se pudieron cargar los grupos");
+      Alert.alert("Error", "No se pudo agregar el grupo");
     }
   };
+
+
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sus Grupos</Text>
 
       <TextInput
-        style={styles.input}
-        placeholder="Agregue su grupo"
+        placeholder="Nombre del grupo"
+        value={groupName}
+        onChangeText={setGroupName}
+        style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
       />
 
-      <Button title="Registrar" />
-
+      <Button
+        onPress={() => { handleAddGroup(groupName) }}
+        title="Presionar"
+      />
       <View style={styles.listContainer}>
         {groups.map((item, index) => (
           <View key={item.id || index} style={styles.groupItem}>
@@ -60,8 +81,7 @@ export default function Home() {
               style={styles.groupText}
               onPress={() => router.replace("/groupdetail")}
             >
-              {/* Ajusta 'name' a la propiedad real que devuelve tu backend */}
-              {typeof item === 'object' ? item.name || item.desc : item}
+             {item.name}
             </Text>
           </View>
         ))}
@@ -75,8 +95,8 @@ export default function Home() {
       </View>
     </View>
   );
-}
 
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -117,4 +137,4 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: '100%',
   }
-});
+})
