@@ -49,8 +49,8 @@ export default function Home() {
         }, body: JSON.stringify({ name })
       });
       if (!res.ok) throw new Error("Error al cargar grupos");
-
-      handleGroupList()
+      const data = await res.json()
+      setGroups([...groups,data])
     } catch (err) {
       console.error(err);
       Alert.alert("Error", "No se pudo agregar el grupo");
@@ -79,9 +79,9 @@ export default function Home() {
           <View key={item.id || index} style={styles.groupItem}>
             <Text
               style={styles.groupText}
-              onPress={() => router.replace("/groupdetail")}
+              onPress={() => router.navigate({pathname: "/groupdetail/[groupId]",params: {groupId: item.id}})}
             >
-             {item.name}
+             {item.name}-{item.id}
             </Text>
           </View>
         ))}

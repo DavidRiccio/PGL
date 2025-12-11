@@ -1,10 +1,11 @@
 import { useRouter } from "expo-router";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, Text, TextInput, View, Alert, Modal } from "react-native";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 import Constants from "expo-constants";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Login() {
+export default function GroupDetail(groupId: number) {
     const { token } = useContext(AuthContext);
     const [currentExpenseId,setCurrentExpenseId] = useState<string|null>(null);
     const [newAmount,setNewAmount] = useState("0");
@@ -35,6 +36,35 @@ export default function Login() {
     const router = useRouter();
     const API_URL = Constants.expoConfig?.extra?.apiUrl ?? "";
     
+     const handleExpensesList = async () => {
+        try {
+          const res = await fetch(`${API_URL}/groups/${groupId}/expenses`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+          });
+          if (!res.ok) throw new Error("Error al cargar gastos");
+          const data = await res.json();
+          setExpenses(data);
+        } catch (err) {
+          console.error(err);
+          Alert.alert("Error", "No se pudieron cargar los gastos");
+        }
+      };
+
+        useEffect(() => {
+          if (token) {
+            handleExpensesList();
+            console.log(groupId);
+            
+          } else {
+            setTimeout(() => {
+              router.replace("/login");
+            }, 0);
+          }
+        }, [token]);
 
     const handleDelete = (id: string) => {
         console.log(`Borro el id : ${id}`);
@@ -47,6 +77,24 @@ export default function Login() {
         }
         Alert.alert("Voy a borrar");
     };
+
+    const handleAddExpense = async (name: string) => {
+        try {
+          const res = await fetch(`${API_URL}/groups`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            }, body: JSON.stringify({ name })
+          });
+          if (!res.ok) throw new Error("Error al cargar grupos");
+          const data = await res.json()
+          setExpenses([...expenses,data])
+        } catch (err) {
+          console.error(err);
+          Alert.alert("Error", "No se pudo agregar el grupo");
+        }
+      };
 
     const handleEdit = () => {
         setVisibleModal(false);
@@ -71,6 +119,8 @@ export default function Login() {
     };
 
     return (
+        <SafeAreaView>
+
         <View style={{ flex: 1, justifyContent: "center", padding: 20 }}>
             <Text>Mi grupo</Text>
             {expenses.map((e, index) => (
@@ -90,5 +140,7 @@ export default function Login() {
             </Modal>
             <Button title="Volver a mis grupos" onPress={() => router.replace("/")} />
         </View>
+                </SafeAreaView>
+
     );
 }
