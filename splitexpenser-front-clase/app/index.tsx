@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
-import { Button, Text, TextInput, View, StyleSheet, Alert } from "react-native";
+import { Button, Text, TextInput, View, StyleSheet, Alert, TouchableOpacity } from "react-native";
 import { AuthContext } from "../context/AuthContext";
 import Constants from "expo-constants";
 
@@ -50,7 +50,7 @@ export default function Home() {
       });
       if (!res.ok) throw new Error("Error al cargar grupos");
       const data = await res.json()
-      setGroups([...groups,data])
+      setGroups([...groups, data])
     } catch (err) {
       console.error(err);
       Alert.alert("Error", "No se pudo agregar el grupo");
@@ -76,13 +76,16 @@ export default function Home() {
       />
       <View style={styles.listContainer}>
         {groups.map((item, index) => (
-          <View key={item.id || index} style={styles.groupItem}>
-            <Text
-              style={styles.groupText}
-              onPress={() => router.navigate({pathname: "/groupdetail/[groupId]",params: {groupId: item.id}})}
+          <View key={index} style={styles.listContainer}>
+            <TouchableOpacity
+              style={styles.groupItem}
+              onPress={() => router.push({
+                pathname: "/groupdetail/[groupId]",
+                params: { groupId: item.id }
+              })}
             >
-             {item.name}-{item.id}
-            </Text>
+              <Text style={styles.groupText}>{item.name} - {item.id}</Text>
+            </TouchableOpacity>
           </View>
         ))}
       </View>

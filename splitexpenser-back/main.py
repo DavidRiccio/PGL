@@ -293,6 +293,7 @@ class ExpenseList(Resource):
         return expenses
 
     @expenses_ns.expect(expense_creation_model, validate=True)
+    @jwt_required()
     def post(self, group_id):
         """Crea un nuevo gasto"""
         data = request.get_json()
